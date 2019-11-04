@@ -1,0 +1,25 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity MixColumns is
+	port 
+	(o
+		col_0		   : in std_logic_vector(31 downto 0);
+		col_1		   : in std_logic_vector(31 downto 0);
+		col_2		   : in std_logic_vector(31 downto 0);
+		col_3		   : in std_logic_vector(31 downto 0);
+		output		: out std_logic_vector(127 downto 0)
+	);
+
+end entity;
+
+architecture rtl of MixColumns is
+
+signal new_col_0, new_col_1, new_col_2, new_col_3 : std_logic_vector(31 downto 0);
+
+begin
+
+
+
+end rtl;

@@ -17,6 +17,7 @@ entity rlps is
 		rlps_1				: out 	std_logic_vector(8 downto 0);
 		rlps_2				: out	std_logic_vector(8 downto 0);
 		rlps_3				: out	std_logic_vector(8 downto 0)
+			
 		);
 end entity;
 			
