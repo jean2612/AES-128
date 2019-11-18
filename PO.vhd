@@ -29,6 +29,8 @@ architecture rtl of PO is
 	signal general_sbox_input0,general_sbox_input1,general_sbox_input2,general_sbox_input3,general_sbox_input4,general_sbox_input5,general_sbox_input6,general_sbox_input7,general_sbox_input8,general_sbox_input9,general_sbox_input10,general_sbox_input11,general_sbox_input12,general_sbox_input13,general_sbox_input14,general_sbox_input15	: std_logic_vector((BYTE_DATA_WIDTH-1) downto 0);
 	signal general_reg_output0,general_reg_output1,general_reg_output2,general_reg_output3,general_reg_output4,general_reg_output5,general_reg_output6,general_reg_output7,general_reg_output8,general_reg_output9,general_reg_output10,general_reg_output11,general_reg_output12,general_reg_output13,general_reg_output14,general_reg_output15	: std_logic_vector((BYTE_DATA_WIDTH-1) downto 0);
 	signal column_out_reg0, column_out_reg1, column_out_reg2, column_out_reg3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
+	signal output_reg_mux_0, output_reg_mux_1, output_reg_mux_2, output_reg_mux_3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
+	signal output_mix_columns_0, output_mix_columns_1, output_mix_columns_2, output_mix_columns_3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	
 	component Regs_8b is
 	generic 
@@ -130,11 +132,70 @@ architecture rtl of PO is
 			rlps_15				: out 	std_logic_vector(7 downto 0)
 		);
 	end component;
-	
+	component Regs_32b is
+		generic 
+		(
+			DATA_WIDTH : natural := 32
+		);
+		port 
+		(
+			clk		: in std_logic;
+			enable	: in std_logic;
+			
+			input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+			input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+			input_2	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+			input_3	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+			
+			output_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+			output_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+			output_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+			output_3		: out std_logic_vector((DATA_WIDTH-1) downto 0)
+		);
 
+	end component;
 	
+	component MixColumns is
+	port 
+	(
+		col_0_mix		   : in std_logic_vector(31 downto 0);
+		col_1_mix		   : in std_logic_vector(31 downto 0);
+		col_2_mix		   : in std_logic_vector(31 downto 0);
+		col_3_mix		   : in std_logic_vector(31 downto 0);
+		new_col_mix_0, new_col_mix_1, new_col_mix_2, new_col_mix_3 : out std_logic_vector(31 downto 0)
+	);
+	end component;
 	
-begin
+	component Block_muxes_reg is
+	generic 
+	(
+		DATA_WIDTH : natural := 128
+	);
+	port 
+	(
+		clk		: in std_logic;
+		enable	: in std_logic;
+		counter	: in std_logic_vector(3 downto 0);
+		
+		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_2	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_3	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		
+		input_0_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_1_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_2_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_3_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		
+		output_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_3		: out std_logic_vector((DATA_WIDTH-1) downto 0)
+	);
+
+	end component;
+	
+	begin
 
 	column_out_reg0 <= general_reg_output0 & general_reg_output1 & general_reg_output2 & general_reg_output3;
 	column_out_reg1 <= general_reg_output4 & general_reg_output5 & general_reg_output6 & general_reg_output7;
@@ -204,6 +265,7 @@ begin
 		output_reg_15  => general_reg_output15
 	);
 	
+	
 	S_Box : Sbox
 	port map
 	(
@@ -242,4 +304,64 @@ begin
 			rlps_15    => general_sbox_input15
 	);
 
-end rtl;
+
+	Regs_columns	: Regs_32b
+	generic map
+	(
+		DATA_WIDTH => COLUMN_DATA_WIDTH
+	)
+	port map
+	(
+		clk		=> general_clk,
+		enable	=> en_2,
+			
+		input_0	=> column_out_reg0,
+		input_1	=> column_out_reg1,
+		input_2	=> column_out_reg2,
+		input_3	=> column_out_reg3,
+			
+		output_0	=> output_reg_mux_0,
+		output_1	=> output_reg_mux_1,
+		output_2	=> output_reg_mux_2,
+		output_3	=> output_reg_mux_3,
+	);
+	Mix_columns	: MixColumns
+	port map
+	(
+		col_0_mix	=> output_reg_mux_0,
+		col_1_mix	=> output_reg_mux_1,
+		col_2_mix	=> output_reg_mux_2,
+		col_3_mix	=> output_reg_mux_3,
+		
+		new_col_mix_0	=> output_mix_columns_0,
+		new_col_mix_1	=> output_mix_columns_1,
+		new_col_mix_2	=> output_mix_columns_2,
+		new_col_mix_3	=> output_mix_columns_3,
+	);
+	Bloco_mux_reg	: block_muxes_reg
+	generic map
+	(
+		DATA_WIDTH => GENERAL_DATA_WIDTH
+	);
+	port map
+	(
+		clk		=> general_clk,
+		enable	=> en_3
+		counter	=> -------------preenche
+		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_2	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_3	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		
+		input_0_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_1_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_2_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_3_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		
+		output_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_3		: out std_logic_vector((DATA_WIDTH-1) downto 0)
+	);
+	
+	end rtl;
