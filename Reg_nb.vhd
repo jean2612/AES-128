@@ -1,0 +1,79 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity Reg_8b is
+	generic 
+	(
+		DATA_WIDTH : natural := 8
+	);
+	port 
+	(
+		clk		: in std_logic;
+		enable	: in std_logic;
+		
+		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_2	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_3	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_4	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_5	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_6	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_7	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_8	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_9	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_10	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_11	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_12	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_13	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_14	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_15	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		
+		output_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_3		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_4		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_5		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_6		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_7		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_8		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_9		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_10	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_11	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_12	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_13	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_14	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_15	: out std_logic_vector((DATA_WIDTH-1) downto 0)
+	);
+
+end entity;
+
+architecture rtl of Reg_8b is
+
+begin
+	process (clk)
+	begin
+		if (rising_edge(clk)) then
+			if(enable = '1') then
+				output_0 <= input_0;
+				output_1 <= input_1;
+				output_2 <= input_2;
+				output_3 <= input_3;
+				output_4 <= input_4;
+				output_5 <= input_5;
+				output_6 <= input_6;
+				output_7 <= input_7;
+				output_8 <= input_8;
+				output_9 <= input_9;
+				output_10 <= input_10;
+				output_11 <= input_11;
+				output_12 <= input_12;
+				output_13 <= input_13;
+				output_14 <= input_14;
+				output_15 <= input_15;
+			end if;
+		end if;
+	end process;
+
+end rtl;

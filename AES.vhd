@@ -16,5 +16,8 @@ end entity;
 architecture rtl of AES is
 begin
 
+	--componente PC
+	
+	--componente PO
 
 end rtl;

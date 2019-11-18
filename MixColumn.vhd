@@ -1,0 +1,22 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity MixColumn is
+	port 
+	(
+		col_0		   : in std_logic_vector(31 downto 0);
+		new_col_0 	: out std_logic_vector(31 downto 0)
+	);
+
+end entity;
+
+architecture rtl of MixColumn is
+begin
+
+	new_col_0(31 downto 24) <= std_logic_vector((to_unsigned(2, 8)*unsigned(col_0(31 downto 24))) xor ((to_unsigned(2, 8)*unsigned(col_0(23 downto 16))) xor unsigned(col_0)) xor unsigned(col_0(15 downto 8)) xor unsigned(col_0(7 downto 0)));
+	new_col_0(23 downto 16) <= std_logic_vector(unsigned(col_0(31 downto 24)) xor (to_unsigned(2, 8)*unsigned(col_0(23 downto 16))) xor ((to_unsigned(2, 8)*unsigned(col_0(15 downto 8))) xor unsigned(col_0(15 downto 8))) xor unsigned(col_0(7 downto 0)));
+	new_col_0(15 downto 8)	<= std_logic_vector(unsigned(col_0(31 downto 24)) xor unsigned(col_0(23 downto 16)) xor (to_unsigned(2, 8)*unsigned(col_0(15 downto 8))) xor ((to_unsigned(2, 8)*unsigned(col_0(7 downto 0))) xor unsigned(col_0(7 downto 0))));
+	new_col_0(7 downto 0)	<= std_logic_vector(((to_unsigned(2, 8)*unsigned(col_0(31 downto 24))) xor unsigned(col_0(31 downto 24))) xor unsigned(col_0(23 downto 16)) xor unsigned(col_0(15 downto 8)) xor (to_unsigned(2, 8)*unsigned(col_0(7 downto 0))));
+	
+end rtl;
