@@ -5,21 +5,22 @@ use ieee.numeric_std.all;
 entity PO is
 	generic 
 		(
-			BYTE_DATA_WIDTH : natural := 8;
-			COLUMN_DATA_WIDTH : natural := 32;
-			GENERAL_DATA_WIDTH : natural := 128
+			BYTE_DATA_WIDTH 		: natural := 8;
+			COLUMN_DATA_WIDTH 	: natural := 32;
+			GENERAL_DATA_WIDTH 	: natural := 128
 		);
 	port 
 	(
-		general_clk		: in std_logic;
-		reset		: in std_logic;
-		en_1		: in std_logic;
-		en_2		: in std_logic;
-		en_3		: in std_logic;
-		sel_1		: in std_logic_vector(1 downto 0);
-		general_input_0,general_input_1,general_input_2,general_input_3,general_input_4,general_input_5,general_input_6,general_input_7,general_input_8,general_input_9,general_input_10,general_input_11,general_input_12,general_input_13,general_input_14,general_input_15	: in std_logic_vector((BYTE_DATA_WIDTH-1) downto 0);
-
-		sel_2		: in std_logic
+		general_clk			: in std_logic;
+		general_counter	: in std_logic(3 downto 0);
+		reset					: in std_logic;
+		en_1					: in std_logic;
+		en_2					: in std_logic;
+		en_3					: in std_logic;
+		sel_1					: in std_logic_vector(1 downto 0);
+		
+		general_key			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
+		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
 	);
 
 end entity;
@@ -31,6 +32,8 @@ architecture rtl of PO is
 	signal column_out_reg0, column_out_reg1, column_out_reg2, column_out_reg3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	signal output_reg_mux_0, output_reg_mux_1, output_reg_mux_2, output_reg_mux_3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	signal output_mix_columns_0, output_mix_columns_1, output_mix_columns_2, output_mix_columns_3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
+	signal input_add_0, input_add_1, input_add_2, input_add_3	: std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
+	signal general_state : std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0) := input_state;
 	
 	component Regs_8b is
 	generic 
@@ -40,8 +43,8 @@ architecture rtl of PO is
 	port 
 	(
 		clk		: in std_logic;
-		enable			: in std_logic;
-		sel 				: in std_logic_vector(1 downto 0);
+		enable	: in std_logic;
+		sel 		: in std_logic_vector(1 downto 0);
 		
 		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 		input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -77,16 +80,16 @@ architecture rtl of PO is
 		input_14_sbox	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 		input_15_sbox	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 		
-		output_reg_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_3		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_4		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_5		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_6		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_7		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_8		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_9		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_0	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_1	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_2	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_3	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_4	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_5	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_6	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_7	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_8	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_9	: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_10	: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_11	: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_12	: out std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -162,7 +165,10 @@ architecture rtl of PO is
 		col_1_mix		   : in std_logic_vector(31 downto 0);
 		col_2_mix		   : in std_logic_vector(31 downto 0);
 		col_3_mix		   : in std_logic_vector(31 downto 0);
-		new_col_mix_0, new_col_mix_1, new_col_mix_2, new_col_mix_3 : out std_logic_vector(31 downto 0)
+		new_col_mix_0 		: out std_logic_vector(31 downto 0); 
+		new_col_mix_1 		: out std_logic_vector(31 downto 0); 
+		new_col_mix_2 		: out std_logic_vector(31 downto 0); 
+		new_col_mix_3 		: out std_logic_vector(31 downto 0)
 	);
 	end component;
 	
@@ -195,13 +201,26 @@ architecture rtl of PO is
 
 	end component;
 	
+	component AddRoundKey is
+	port 
+	(
+		col_0_add		: in std_logic_vector(31 downto 0);
+		col_1_add		: in std_logic_vector(31 downto 0);
+		col_2_add		: in std_logic_vector(31 downto 0);
+		col_3_add		: in std_logic_vector(31 downto 0);
+		key				: in std_logic_vector(127 downto 0);
+		output			: out std_logic_vector(127 downto 0)
+	);
+
+	end component;
+	
 	begin
 
 	column_out_reg0 <= general_reg_output0 & general_reg_output1 & general_reg_output2 & general_reg_output3;
 	column_out_reg1 <= general_reg_output4 & general_reg_output5 & general_reg_output6 & general_reg_output7;
 	column_out_reg2 <= general_reg_output8 & general_reg_output9 & general_reg_output10 & general_reg_output11;
 	column_out_reg3 <= general_reg_output12 & general_reg_output13 & general_reg_output14 & general_reg_output15;
-
+	
 	Regs_input	: Regs_8b
 	generic map
 	(
@@ -213,22 +232,22 @@ architecture rtl of PO is
 		enable	=> en_1,
 		sel 		=> sel_1,
 		
-		input_0	=> general_input_0,
-		input_1	=> general_input_1,
-		input_2	=> general_input_2,
-		input_3	=> general_input_3,
-		input_4	=> general_input_4,
-		input_5	=> general_input_5,
-		input_6	=> general_input_6,
-		input_7	=> general_input_7,
-		input_8	=> general_input_8,
-		input_9	=> general_input_9,
-		input_10	=> general_input_10,
-		input_11	=> general_input_11,
-		input_12	=> general_input_12,
-		input_13	=> general_input_13,
-		input_14	=> general_input_14,
-		input_15	=> general_input_15,
+		input_0	=> general_state(127 downto 120),
+		input_1	=> general_state(119 downto 112),
+		input_2	=> general_state(111 downto 104),
+		input_3	=> general_state(103 downto 96),
+		input_4	=> general_state(95 downto 88),
+		input_5	=> general_state(87 downto 80),
+		input_6	=> general_state(79 downto 72),
+		input_7	=> general_state(71 downto 64),
+		input_8	=> general_state(63 downto 56),
+		input_9	=> general_state(55 downto 48),
+		input_10	=> general_state(47 downto 40),
+		input_11	=> general_state(39 downto 32),
+		input_12	=> general_state(31 downto 24),
+		input_13	=> general_state(23 downto 16),
+		input_14	=> general_state(15 downto 8),
+		input_15	=> general_state(7 downto 0),
 		
 		input_0_sbox  => general_sbox_input0,
 		input_1_sbox  => general_sbox_input1,
@@ -323,7 +342,7 @@ architecture rtl of PO is
 		output_0	=> output_reg_mux_0,
 		output_1	=> output_reg_mux_1,
 		output_2	=> output_reg_mux_2,
-		output_3	=> output_reg_mux_3,
+		output_3	=> output_reg_mux_3
 	);
 	Mix_columns	: MixColumns
 	port map
@@ -336,32 +355,46 @@ architecture rtl of PO is
 		new_col_mix_0	=> output_mix_columns_0,
 		new_col_mix_1	=> output_mix_columns_1,
 		new_col_mix_2	=> output_mix_columns_2,
-		new_col_mix_3	=> output_mix_columns_3,
+		new_col_mix_3	=> output_mix_columns_3
 	);
 	Bloco_mux_reg	: block_muxes_reg
 	generic map
 	(
 		DATA_WIDTH => GENERAL_DATA_WIDTH
-	);
+	)
 	port map
 	(
-		clk		=> general_clk,
-		enable	=> en_3
-		counter	=> -------------preenche
-		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
-		input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
-		input_2	: in std_logic_vector((DATA_WIDTH-1) downto 0);
-		input_3	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		clk			=> general_clk,
+		enable		=> en_3,
+		counter		=> general_counter,
+		input_0		=> output_reg_mux_0,
+		input_1		=> output_reg_mux_1,
+		input_2		=> output_reg_mux_2,
+		input_3		=> output_reg_mux_3,
 		
-		input_0_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
-		input_1_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
-		input_2_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
-		input_3_mix	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_0_mix		=> output_mix_columns_0,
+		input_1_mix		=> output_mix_columns_1,
+		input_2_mix		=> output_mix_columns_2,
+		input_3_mix		=> output_mix_columns_3,
 		
-		output_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_3		: out std_logic_vector((DATA_WIDTH-1) downto 0)
+		output_0			=> input_add_0,
+		output_1			=> input_add_1,
+		output_2			=> input_add_2,
+		output_3			=> input_add_3
 	);
 	
+	Add	: AddRoundKey
+	generic map
+	(
+		DATA_WIDTH => COLUMN_DATA_WIDTH
+	)
+	port map
+	(
+		col_0_add	=> input_add_0,
+		col_1_add	=> input_add_1,
+		col_2_add	=> input_add_2,
+		col_3_add	=> input_add_3,
+		key			=> general_key,
+		output		=> general_state
+	);
 	end rtl;
