@@ -16,20 +16,21 @@ end entity;
 
 architecture rtl of AES is
 
-signal general_en_1, general_en_2, general_en_3		: std_logic;
-signal general_sel_1			: std_logic_vector(1 downto 0);
+signal general_en_1, general_en_2, general_en_3, general_en_counter		: std_logic;
+signal general_sel_1		: std_logic_vector(1 downto 0);
 signal counter			: std_logic_vector(3 downto 0);
 
 	component PC is
 		port 
 		(
-			general_clk		: in std_logic;
-			reset		: in std_logic;
-			en_1		: out std_logic;
-			en_2		: out std_logic;
-			en_3		: out std_logic;
-			sel_1		: out std_logic_vector(1 downto 0);
-			general_counter	: in std_logic_vector(3 downto 0)
+			general_clk				: in std_logic;
+			reset						: in std_logic;
+			en_1						: out std_logic;
+			en_2						: out std_logic;
+			en_3						: out std_logic;
+			sel_1						: out std_logic_vector(1 downto 0);
+			general_counter		: in std_logic_vector(3 downto 0);
+			enable_counter			: out std_logic
 		);
 
 	end component;
@@ -57,7 +58,18 @@ signal counter			: std_logic_vector(3 downto 0);
 
 	end component;
 
-begin
+	component contadorRodadas is
+		port
+		(
+			general_clk		  	: in std_logic;
+			reset	  				: in std_logic;
+			enable	  			: in std_logic;
+			round		  			: out std_logic_vector(3 downto 0)
+		);
+
+	end component;
+	
+	begin
 
 	--componente PC
 	Controle		: PC
@@ -69,7 +81,8 @@ begin
 		en_2					=> general_en_2,
 		en_3					=> general_en_3,
 		sel_1					=> general_sel_1,
-		general_counter	=> counter
+		general_counter	=> counter,
+		enable_counter		=> general_en_counter
 	);
 	
 	--componente PO
@@ -86,6 +99,15 @@ begin
 		
 		general_key			=> key,
 		input_state			=> input
+	);
+	
+	Contador		: contadorRodadas
+	port map
+	(
+		general_clk		  	=> clk,
+		reset	  				=> general_reset,
+		enable	  			=> general_en_counter,
+		round		  			=> counter
 	);
 
 end rtl;

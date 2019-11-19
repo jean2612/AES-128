@@ -11,7 +11,8 @@ entity PC is
 		en_2						: out std_logic;
 		en_3						: out std_logic;
 		sel_1						: out std_logic_vector(1 downto 0);
-		general_counter		: in std_logic_vector(3 downto 0)
+		general_counter		: in std_logic_vector(3 downto 0);
+		enable_counter			: out std_logic
 	);
 
 end entity;
