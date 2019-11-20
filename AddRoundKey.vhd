@@ -20,7 +20,7 @@ entity AddRoundKey is
 end entity;
 
 architecture rtl of AddRoundKey is
-signal input	: std_logic_vector(128 downto 0);
+signal input	: std_logic_vector(127 downto 0);
 begin
 	input <= col_0_add & col_1_add & col_2_add & col_3_add;
 	output <= input xor key;

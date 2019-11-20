@@ -12,7 +12,7 @@ entity PO is
 	port 
 	(
 		general_clk			: in std_logic;
-		general_counter	: in std_logic(3 downto 0);
+		general_counter	: in std_logic_vector(3 downto 0);
 		reset					: in std_logic;
 		en_1					: in std_logic;
 		en_2					: in std_logic;
@@ -80,16 +80,33 @@ architecture rtl of PO is
 		input_14_sbox	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 		input_15_sbox	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 		
-		output_reg_0	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_1	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_2	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_3	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_4	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_5	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_6	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_7	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_8	: out std_logic_vector((DATA_WIDTH-1) downto 0);
-		output_reg_9	: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_0_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_1_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_2_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_3_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_4_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_5_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_6_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_7_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_8_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_9_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_10_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_11_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_12_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_13_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_14_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		input_15_add	: in std_logic_vector((DATA_WIDTH-1) downto 0);
+		
+		output_reg_0		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_1		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_2		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_3		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_4		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_5		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_6		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_7		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_8		: out std_logic_vector((DATA_WIDTH-1) downto 0);
+		output_reg_9		: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_10	: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_11	: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_12	: out std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -97,6 +114,7 @@ architecture rtl of PO is
 		output_reg_14	: out std_logic_vector((DATA_WIDTH-1) downto 0);
 		output_reg_15	: out std_logic_vector((DATA_WIDTH-1) downto 0)
 	);
+
 	end component;
 	
 	component SBox is
@@ -202,6 +220,10 @@ architecture rtl of PO is
 	end component;
 	
 	component AddRoundKey is
+	generic 
+	(
+		DATA_WIDTH : natural := 32
+	);
 	port 
 	(
 		col_0_add		: in std_logic_vector(31 downto 0);
@@ -232,22 +254,39 @@ architecture rtl of PO is
 		enable	=> en_1,
 		sel 		=> sel_1,
 		
-		input_0	=> general_state(127 downto 120),
-		input_1	=> general_state(119 downto 112),
-		input_2	=> general_state(111 downto 104),
-		input_3	=> general_state(103 downto 96),
-		input_4	=> general_state(95 downto 88),
-		input_5	=> general_state(87 downto 80),
-		input_6	=> general_state(79 downto 72),
-		input_7	=> general_state(71 downto 64),
-		input_8	=> general_state(63 downto 56),
-		input_9	=> general_state(55 downto 48),
-		input_10	=> general_state(47 downto 40),
-		input_11	=> general_state(39 downto 32),
-		input_12	=> general_state(31 downto 24),
-		input_13	=> general_state(23 downto 16),
-		input_14	=> general_state(15 downto 8),
-		input_15	=> general_state(7 downto 0),
+		input_0	=> input_state(127 downto 120),
+		input_1	=> input_state(119 downto 112),
+		input_2	=> input_state(111 downto 104),
+		input_3	=> input_state(103 downto 96),
+		input_4	=> input_state(95 downto 88),
+		input_5	=> input_state(87 downto 80),
+		input_6	=> input_state(79 downto 72),
+		input_7	=> input_state(71 downto 64),
+		input_8	=> input_state(63 downto 56),
+		input_9	=> input_state(55 downto 48),
+		input_10	=> input_state(47 downto 40),
+		input_11	=> input_state(39 downto 32),
+		input_12	=> input_state(31 downto 24),
+		input_13	=> input_state(23 downto 16),
+		input_14	=> input_state(15 downto 8),
+		input_15	=> input_state(7 downto 0),
+		
+		input_0_add  => general_state(127 downto 120),
+		input_1_add  => general_state(119 downto 112),
+		input_2_add  => general_state(111 downto 104),
+		input_3_add  => general_state(103 downto 96),
+		input_4_add  => general_state(95 downto 88),
+		input_5_add  => general_state(87 downto 80),
+		input_6_add  => general_state(79 downto 72),
+		input_7_add  => general_state(71 downto 64),
+		input_8_add  => general_state(63 downto 56),
+		input_9_add  => general_state(55 downto 48),
+		input_10_add  => general_state(47 downto 40),
+		input_11_add  => general_state(39 downto 32),
+		input_12_add  => general_state(31 downto 24),
+		input_13_add  => general_state(23 downto 16),
+		input_14_add  => general_state(15 downto 8),
+		input_15_add  => general_state(7 downto 0),
 		
 		input_0_sbox  => general_sbox_input0,
 		input_1_sbox  => general_sbox_input1,
@@ -360,7 +399,7 @@ architecture rtl of PO is
 	Bloco_mux_reg	: block_muxes_reg
 	generic map
 	(
-		DATA_WIDTH => GENERAL_DATA_WIDTH
+		DATA_WIDTH => COLUMN_DATA_WIDTH
 	)
 	port map
 	(

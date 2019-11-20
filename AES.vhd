@@ -23,13 +23,13 @@ signal counter			: std_logic_vector(3 downto 0);
 	component PC is
 		port 
 		(
-			clk		: in std_logic;
+			general_clk		: in std_logic;
 			reset		: in std_logic;
 			en_1		: out std_logic;
 			en_2		: out std_logic;
 			en_3		: out std_logic;
 			sel_1		: out std_logic_vector(1 downto 0);
-			counter	: in std_logic_vector(3 downto 0)
+			general_counter	: in std_logic_vector(3 downto 0)
 		);
 
 	end component;
@@ -44,7 +44,7 @@ signal counter			: std_logic_vector(3 downto 0);
 	port 
 	(
 		general_clk			: in std_logic;
-		general_counter	: in std_logic;
+		general_counter	: in std_logic_vector(3 downto 0);
 		reset					: in std_logic;
 		en_1					: in std_logic;
 		en_2					: in std_logic;

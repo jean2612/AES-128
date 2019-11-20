@@ -21,6 +21,7 @@ entity SBox is
 		state13		   	: in 		std_logic_vector(7 downto 0);
 		state14		   	: in 		std_logic_vector(7 downto 0);
 		state15		   	: in 		std_logic_vector(7 downto 0);
+		
 		rlps_0				: out 	std_logic_vector(7 downto 0);
 		rlps_1				: out 	std_logic_vector(7 downto 0);
 		rlps_2				: out 	std_logic_vector(7 downto 0);

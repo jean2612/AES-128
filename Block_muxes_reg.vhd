@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity Block_muxes_reg is
 	generic 
 	(
-		DATA_WIDTH : natural := 128
+		DATA_WIDTH : natural := 32
 	);
 	port 
 	(
