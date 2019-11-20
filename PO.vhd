@@ -20,7 +20,9 @@ entity PO is
 		sel_1					: in std_logic_vector(1 downto 0);
 		
 		general_key			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
-		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
+		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
+		
+		output_PO			: out std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
 	);
 
 end entity;
@@ -436,4 +438,7 @@ architecture rtl of PO is
 		key			=> general_key,
 		output		=> general_state
 	);
+	
+	output_PO <= general_state;
+	
 	end rtl;

@@ -17,8 +17,10 @@ end entity;
 architecture rtl of AES is
 
 signal general_en_1, general_en_2, general_en_3, general_en_counter		: std_logic;
-signal general_sel_1		: std_logic_vector(1 downto 0);
-signal counter			: std_logic_vector(3 downto 0);
+signal general_sel_1			: std_logic_vector(1 downto 0);
+signal counter					: std_logic_vector(3 downto 0);
+signal general_ready			: std_logic;
+signal general_output_PO	: std_logic_vector(127 downto 0);
 
 	component PC is
 		port 
@@ -30,7 +32,8 @@ signal counter			: std_logic_vector(3 downto 0);
 			en_3						: out std_logic;
 			sel_1						: out std_logic_vector(1 downto 0);
 			general_counter		: in std_logic_vector(3 downto 0);
-			enable_counter			: out std_logic
+			enable_counter			: out std_logic;
+			ready						: out std_logic
 		);
 
 	end component;
@@ -53,7 +56,9 @@ signal counter			: std_logic_vector(3 downto 0);
 		sel_1					: in std_logic_vector(1 downto 0);
 		
 		general_key			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
-		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
+		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
+		
+		output_PO			: out std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
 	);
 
 	end component;
@@ -82,7 +87,8 @@ signal counter			: std_logic_vector(3 downto 0);
 		en_3					=> general_en_3,
 		sel_1					=> general_sel_1,
 		general_counter	=> counter,
-		enable_counter		=> general_en_counter
+		enable_counter		=> general_en_counter,
+		ready					=> general_ready
 	);
 	
 	--componente PO
@@ -98,7 +104,8 @@ signal counter			: std_logic_vector(3 downto 0);
 		sel_1					=> general_sel_1,
 		
 		general_key			=> key,
-		input_state			=> input
+		input_state			=> input,
+		output_PO			=> general_output_PO
 	);
 	
 	Contador		: contadorRodadas
@@ -109,5 +116,7 @@ signal counter			: std_logic_vector(3 downto 0);
 		enable	  			=> general_en_counter,
 		round		  			=> counter
 	);
+	
+	output <= general_output_PO;
 
 end rtl;
