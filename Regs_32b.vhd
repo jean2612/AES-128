@@ -11,6 +11,7 @@ entity Regs_32b is
 	(
 		clk		: in std_logic;
 		enable	: in std_logic;
+		reset		: in std_logic;
 		
 		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 		input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -30,7 +31,12 @@ architecture rtl of Regs_32b is
 begin
 	process (clk)
 	begin
-		if (rising_edge(clk)) then
+		if(reset = '0') then
+			output_0 <= (others => '0');
+			output_1 <= (others => '0');
+			output_2 <= (others => '0');
+			output_3 <= (others => '0');
+		elsif (rising_edge(clk)) then
 			if(enable = '1') then
 				output_0 <= input_0;
 				output_1 <= input_1;

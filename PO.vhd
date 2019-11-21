@@ -13,7 +13,7 @@ entity PO is
 	(
 		general_clk			: in std_logic;
 		general_counter	: in std_logic_vector(3 downto 0);
-		reset					: in std_logic;
+		general_reset		: in std_logic;
 		en_1					: in std_logic;
 		en_2					: in std_logic;
 		en_3					: in std_logic;
@@ -46,6 +46,7 @@ architecture rtl of PO is
 	(
 		clk		: in std_logic;
 		enable	: in std_logic;
+		reset		: in std_logic;
 		sel 		: in std_logic_vector(1 downto 0);
 		
 		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -164,6 +165,7 @@ architecture rtl of PO is
 		(
 			clk		: in std_logic;
 			enable	: in std_logic;
+			reset		: in std_logic;
 			
 			input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
 			input_1	: in std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -178,18 +180,18 @@ architecture rtl of PO is
 
 	end component;
 	
-	component MixColumns is
-	port 
-	(
-		col_0_mix		   : in std_logic_vector(31 downto 0);
-		col_1_mix		   : in std_logic_vector(31 downto 0);
-		col_2_mix		   : in std_logic_vector(31 downto 0);
-		col_3_mix		   : in std_logic_vector(31 downto 0);
-		new_col_mix_0 		: out std_logic_vector(31 downto 0); 
-		new_col_mix_1 		: out std_logic_vector(31 downto 0); 
-		new_col_mix_2 		: out std_logic_vector(31 downto 0); 
-		new_col_mix_3 		: out std_logic_vector(31 downto 0)
-	);
+	component MixColumns2 is
+    port ( 
+			col_0_mix : in STD_LOGIC_VECTOR (31 downto 0);
+			col_1_mix : in STD_LOGIC_VECTOR (31 downto 0);
+			col_2_mix : in STD_LOGIC_VECTOR (31 downto 0);
+			col_3_mix : in STD_LOGIC_VECTOR (31 downto 0);
+			
+         new_col_mix_0 : out STD_LOGIC_VECTOR (31 downto 0);
+			new_col_mix_1 : out STD_LOGIC_VECTOR (31 downto 0);
+			new_col_mix_2 : out STD_LOGIC_VECTOR (31 downto 0);
+			new_col_mix_3 : out STD_LOGIC_VECTOR (31 downto 0)
+			);
 	end component;
 	
 	component Block_muxes_reg is
@@ -201,6 +203,7 @@ architecture rtl of PO is
 	(
 		clk		: in std_logic;
 		enable	: in std_logic;
+		reset		: in std_logic;
 		counter	: in std_logic_vector(3 downto 0);
 		
 		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -254,6 +257,7 @@ architecture rtl of PO is
 	(
 		clk		=> general_clk,
 		enable	=> en_1,
+		reset		=> general_reset,
 		sel 		=> sel_1,
 		
 		input_0	=> input_state(127 downto 120),
@@ -374,6 +378,7 @@ architecture rtl of PO is
 	(
 		clk		=> general_clk,
 		enable	=> en_2,
+		reset		=> general_reset,
 			
 		input_0	=> column_out_reg0,
 		input_1	=> column_out_reg1,
@@ -385,7 +390,7 @@ architecture rtl of PO is
 		output_2	=> output_reg_mux_2,
 		output_3	=> output_reg_mux_3
 	);
-	Mix_columns	: MixColumns
+	Mix_columns	: MixColumns2
 	port map
 	(
 		col_0_mix	=> output_reg_mux_0,
@@ -398,6 +403,7 @@ architecture rtl of PO is
 		new_col_mix_2	=> output_mix_columns_2,
 		new_col_mix_3	=> output_mix_columns_3
 	);
+	
 	Bloco_mux_reg	: block_muxes_reg
 	generic map
 	(
@@ -407,7 +413,9 @@ architecture rtl of PO is
 	(
 		clk			=> general_clk,
 		enable		=> en_3,
+		reset			=> general_reset,
 		counter		=> general_counter,
+		
 		input_0		=> output_reg_mux_0,
 		input_1		=> output_reg_mux_1,
 		input_2		=> output_reg_mux_2,

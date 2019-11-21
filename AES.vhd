@@ -6,7 +6,7 @@ entity AES is
 	port 
 	(
 		clk				: in std_logic;
-		general_reset	: in std_logic;
+		reset_top		: in std_logic;
 		input				: in std_logic_vector(127 downto 0);
 		key				: in std_logic_vector(127 downto 0);
 		output			: out std_logic_vector(127 downto 0)
@@ -49,7 +49,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 	(
 		general_clk			: in std_logic;
 		general_counter	: in std_logic_vector(3 downto 0);
-		reset					: in std_logic;
+		general_reset		: in std_logic;
 		en_1					: in std_logic;
 		en_2					: in std_logic;
 		en_3					: in std_logic;
@@ -81,7 +81,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 	port map
 	(
 		general_clk			=> clk,
-		reset					=> general_reset,
+		reset					=> reset_top,
 		en_1					=> general_en_1,
 		en_2					=> general_en_2,
 		en_3					=> general_en_3,
@@ -97,7 +97,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 	(
 		general_clk			=> clk,
 		general_counter	=> counter,
-		reset					=> general_reset,
+		general_reset		=> reset_top,
 		en_1					=> general_en_1,
 		en_2					=> general_en_2,
 		en_3					=> general_en_3,
@@ -112,7 +112,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 	port map
 	(
 		general_clk		  	=> clk,
-		reset	  				=> general_reset,
+		reset	  				=> reset_top,
 		enable	  			=> general_en_counter,
 		round		  			=> counter
 	);

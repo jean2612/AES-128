@@ -19,9 +19,6 @@ signal teste_0, teste_1, teste_2, teste_3		: std_logic_vector(7 downto 0);
 
 begin
 
-	--when (entrada1(7) = '0') else 
-	            --std_logic_vector(shift_left(unsigned(entrada1), 2)) xor "00011011";
-
 	shift_0 <= std_logic_vector(shift_left(unsigned(col_0(31 downto 24)), 2)); -- A
 	shift_1 <= std_logic_vector(shift_left(unsigned(col_0(23 downto 16)), 2)); -- B
 	shift_2 <= std_logic_vector(shift_left(unsigned(col_0(15 downto 8)), 2)); -- C

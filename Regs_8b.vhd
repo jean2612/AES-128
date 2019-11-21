@@ -11,6 +11,7 @@ entity Regs_8b is
 	(
 		clk		: in std_logic;
 		enable	: in std_logic;
+		reset		: in std_logic;
 		sel 		: in std_logic_vector(1 downto 0);
 		
 		input_0	: in std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -89,7 +90,24 @@ signal outmux_0, outmux_1, outmux_2, outmux_3, outmux_4, outmux_5, outmux_6, out
 begin
 	process (clk)
 	begin
-		if (rising_edge(clk)) then
+		if(reset = '0') then
+			output_reg_0 <= (others => '0');
+			output_reg_1 <= (others => '0');
+			output_reg_2 <= (others => '0');
+			output_reg_3 <= (others => '0');
+			output_reg_4 <= (others => '0');
+			output_reg_5 <= (others => '0');
+			output_reg_6 <= (others => '0');
+			output_reg_7 <= (others => '0');
+			output_reg_8 <= (others => '0');
+			output_reg_9 <= (others => '0');
+			output_reg_10 <= (others => '0');
+			output_reg_11 <= (others => '0');
+			output_reg_12 <= (others => '0');
+			output_reg_13 <= (others => '0');
+			output_reg_14 <= (others => '0');
+			output_reg_15 <= (others => '0');
+		elsif (rising_edge(clk)) then
 			if(enable = '1') then
 				output_reg_0 <= outmux_0;
 				output_reg_1 <= outmux_1;
