@@ -29,7 +29,7 @@ end entity;
 architecture rtl of Regs_32b is
 
 begin
-	process (clk)
+	process (clk, reset)
 	begin
 		if(reset = '0') then
 			output_0 <= (others => '0');

@@ -1,0 +1,10 @@
+.fromstates Controle/state[2] Controle/state[1] Controle/state[0]
+.tostates Controle/state.s5 Controle/state.s4 Controle/state.s3 Controle/state.s2 Controle/state.s1 Controle/state.s0
+.begin
+    000 000000
+    001 000011
+    010 000101
+    011 001001
+    100 010001
+    101 100001
+.end

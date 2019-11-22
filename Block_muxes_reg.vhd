@@ -35,7 +35,7 @@ end entity;
 architecture rtl of Block_muxes_reg is
 signal input_reg_0, input_reg_1, input_reg_2, input_reg_3	: std_logic_vector((DATA_WIDTH-1) downto 0);
 begin
-	process (clk)
+	process (clk, reset)
 	begin
 		if(reset = '0') then
 			output_0 <= (others => '0');
@@ -52,13 +52,13 @@ begin
 		end if;
 	end process;
 	
-	input_reg_0 <= input_0_mix when (counter(3) = '0') else
-						input_0;
-	input_reg_1 <= input_1_mix when (counter(3) = '0') else
-						input_1;
-	input_reg_2 <= input_2_mix when (counter(3) = '0') else
-						input_2;
-	input_reg_3 <= input_3_mix when (counter(3) = '0') else
-						input_3;
+	input_reg_0 <= input_0 when (counter = "1001") else
+						input_0_mix;
+	input_reg_1 <= input_1 when (counter = "1001") else
+						input_1_mix;
+	input_reg_2 <= input_2 when (counter = "1001") else
+						input_2_mix;
+	input_reg_3 <= input_3 when (counter = "1001") else
+						input_3_mix;
 
 end rtl;

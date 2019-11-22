@@ -13,6 +13,7 @@ entity PC is
 		sel_1						: out std_logic_vector(1 downto 0);
 		general_counter		: in std_logic_vector(3 downto 0);
 		enable_counter			: out std_logic;
+		enable_key				: out std_logic;
 		ready						: out std_logic
 	);
 
@@ -39,7 +40,7 @@ architecture rtl of PC is
 					when s2 =>
 						state <= s3;
 					when s3 =>
-						if(general_counter(3) = '1') then
+						if(general_counter = "1001") then
 							state <= s5;
 						else
 							state <= s4;
@@ -61,6 +62,7 @@ architecture rtl of PC is
 					en_3 				<= '0';
 					sel_1 			<= "00";
 					enable_counter	<= '0';
+					enable_key		<= '0';
 					ready				<= '0';
 				when s1 =>
 					en_1 				<= '1';
@@ -68,6 +70,7 @@ architecture rtl of PC is
 					en_3 				<= '0';
 					sel_1 			<= "01";
 					enable_counter	<= '0';
+					enable_key		<= '1';
 					ready				<= '0';
 				when s2 =>
 					en_1 				<= '0';
@@ -75,6 +78,7 @@ architecture rtl of PC is
 					en_3 				<= '0';
 					sel_1 			<= "00";
 					enable_counter	<= '0';
+					enable_key		<= '0';
 					ready				<= '0';
 				when s3 =>
 					en_1 				<= '0';
@@ -82,6 +86,7 @@ architecture rtl of PC is
 					en_3 				<= '1';
 					sel_1 			<= "00";
 					enable_counter	<= '0';
+					enable_key		<= '0';
 					ready				<= '0';
 				when s4 =>
 					en_1 				<= '1';
@@ -89,6 +94,7 @@ architecture rtl of PC is
 					en_3 				<= '1';
 					sel_1 			<= "10";
 					enable_counter	<= '1';
+					enable_key		<= '0';
 					ready				<= '0';
 				when s5 =>
 					en_1 				<= '0';
@@ -96,6 +102,7 @@ architecture rtl of PC is
 					en_3 				<= '1';
 					sel_1 			<= "00";
 					enable_counter	<= '0';
+					enable_key		<= '0';
 					ready				<= '1';
 			end case;
 	end process;

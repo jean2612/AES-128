@@ -19,7 +19,7 @@ architecture rtl of AES is
 signal general_en_1, general_en_2, general_en_3, general_en_counter		: std_logic;
 signal general_sel_1			: std_logic_vector(1 downto 0);
 signal counter					: std_logic_vector(3 downto 0);
-signal general_ready			: std_logic;
+signal general_ready, general_en_key			: std_logic;
 signal general_output_PO	: std_logic_vector(127 downto 0);
 
 	component PC is
@@ -33,6 +33,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 			sel_1						: out std_logic_vector(1 downto 0);
 			general_counter		: in std_logic_vector(3 downto 0);
 			enable_counter			: out std_logic;
+			enable_key				: out std_logic;
 			ready						: out std_logic
 		);
 
@@ -57,6 +58,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 		
 		general_key			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
 		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
+		en_key				: in std_logic;
 		
 		output_PO			: out std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
 	);
@@ -88,6 +90,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 		sel_1					=> general_sel_1,
 		general_counter	=> counter,
 		enable_counter		=> general_en_counter,
+		enable_key			=> general_en_key,
 		ready					=> general_ready
 	);
 	
@@ -102,6 +105,7 @@ signal general_output_PO	: std_logic_vector(127 downto 0);
 		en_2					=> general_en_2,
 		en_3					=> general_en_3,
 		sel_1					=> general_sel_1,
+		en_key				=> general_en_key,
 		
 		general_key			=> key,
 		input_state			=> input,

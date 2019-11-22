@@ -88,7 +88,7 @@ end entity;
 architecture rtl of Regs_8b is
 signal outmux_0, outmux_1, outmux_2, outmux_3, outmux_4, outmux_5, outmux_6, outmux_7, outmux_8, outmux_9, outmux_10, outmux_11, outmux_12, outmux_13, outmux_14, outmux_15 : std_logic_vector((DATA_WIDTH-1) downto 0);
 begin
-	process (clk)
+	process (clk, reset)
 	begin
 		if(reset = '0') then
 			output_reg_0 <= (others => '0');

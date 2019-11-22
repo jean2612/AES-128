@@ -21,6 +21,7 @@ entity PO is
 		
 		general_key			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
 		input_state			: in std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
+		en_key				: in std_logic;
 		
 		output_PO			: out std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0)
 	);
@@ -29,13 +30,15 @@ end entity;
 
 architecture rtl of PO is
 
-	signal general_sbox_input0,general_sbox_input1,general_sbox_input2,general_sbox_input3,general_sbox_input4,general_sbox_input5,general_sbox_input6,general_sbox_input7,general_sbox_input8,general_sbox_input9,general_sbox_input10,general_sbox_input11,general_sbox_input12,general_sbox_input13,general_sbox_input14,general_sbox_input15	: std_logic_vector((BYTE_DATA_WIDTH-1) downto 0);
+	signal general_sbox_output0,general_sbox_output1,general_sbox_output2,general_sbox_output3,general_sbox_output4,general_sbox_output5,general_sbox_output6,general_sbox_output7,general_sbox_output8,general_sbox_output9,general_sbox_output10,general_sbox_output11,general_sbox_output12,general_sbox_output13,general_sbox_output14,general_sbox_output15	: std_logic_vector((BYTE_DATA_WIDTH-1) downto 0);
 	signal general_reg_output0,general_reg_output1,general_reg_output2,general_reg_output3,general_reg_output4,general_reg_output5,general_reg_output6,general_reg_output7,general_reg_output8,general_reg_output9,general_reg_output10,general_reg_output11,general_reg_output12,general_reg_output13,general_reg_output14,general_reg_output15	: std_logic_vector((BYTE_DATA_WIDTH-1) downto 0);
 	signal column_out_reg0, column_out_reg1, column_out_reg2, column_out_reg3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	signal output_reg_mux_0, output_reg_mux_1, output_reg_mux_2, output_reg_mux_3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	signal output_mix_columns_0, output_mix_columns_1, output_mix_columns_2, output_mix_columns_3 : std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	signal input_add_0, input_add_1, input_add_2, input_add_3	: std_logic_vector((COLUMN_DATA_WIDTH-1) downto 0);
 	signal general_state : std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0) := input_state;
+	signal output_add_initial	: std_logic_vector((GENERAL_DATA_WIDTH-1) downto 0);
+	signal generatedKey, input_Key_generator	: std_logic_vector(127 downto 0);
 	
 	component Regs_8b is
 	generic 
@@ -241,13 +244,84 @@ architecture rtl of PO is
 
 	end component;
 	
+	component geradorKey is
+	 port(
+		key_input		: in std_logic_vector(127 downto 0);
+		key_out			: out std_logic_vector(127 downto 0);
+		clk				: in std_logic;
+		reset	  			: in std_logic;
+		enable	  		: in std_logic;
+		counter			: in std_logic_vector(3 downto 0)
+	 );
+	end component;
+
+	
+	component Mux2_1 is
+	port 
+	(
+		sel		: in std_logic_vector(3 downto 0);
+		a	   	: in std_logic_vector(127 downto 0);
+		b	   	: in std_logic_vector(127 downto 0);
+		output 	: out std_logic_vector (127 downto 0)
+	);
+	end component;
+	
 	begin
 
-	column_out_reg0 <= general_reg_output0 & general_reg_output1 & general_reg_output2 & general_reg_output3;
-	column_out_reg1 <= general_reg_output4 & general_reg_output5 & general_reg_output6 & general_reg_output7;
-	column_out_reg2 <= general_reg_output8 & general_reg_output9 & general_reg_output10 & general_reg_output11;
-	column_out_reg3 <= general_reg_output12 & general_reg_output13 & general_reg_output14 & general_reg_output15;
+	column_out_reg0 <= general_reg_output0 & general_reg_output5 & general_reg_output10 & general_reg_output15;
+	column_out_reg1 <= general_reg_output4 & general_reg_output9 & general_reg_output14 & general_reg_output3;
+	column_out_reg2 <= general_reg_output8 & general_reg_output13 & general_reg_output2 & general_reg_output7;
+	column_out_reg3 <= general_reg_output12 & general_reg_output1 & general_reg_output6 & general_reg_output11;
 	
+	--key_0 	<= general_key;
+	--key_1 	<= X"A0FAFE1788542CB123A339392A6C7605";
+	--key_2 	<= X"F2C295F27A96B9435935807A7359F67F";
+	--key_3 	<= X"3D80477D4716FE3E1E237E446D7A883B";
+	--key_4 	<= X"EF44A541A8525B7FB671253BDB0BAD00";
+	--key_5 	<= X"D4D1C6F87C839D87CAF2B8BC11F915BC";
+	--key_6 	<= X"6D88A37A110B3EFDDBF98641CA0093FD";
+	--key_7 	<= X"4E54F70E5F5FC9F384A64FB24EA6DC4F";
+	--key_8 	<= X"EAD27321B58DBAD2312BF5607F8D292F";
+	--key_9 	<= X"AC7766F319FADC2128D12941575C006E";
+	--key_10 	<= X"D014F9A8C9EE2589E13F0CC8B6630CA6";
+	
+	
+	--ENTRADA 	=> X"3243F6A8885A308D313198A2E0370734"
+	--SAIDA		=> X"392584LD02DC09FBDC118597196A0B32"
+	
+	Mux2p1		: Mux2_1
+	port map
+	(
+		sel		=> general_counter,
+		a	   	=> general_key,
+		b	   	=> generatedKey,
+		output 	=> input_Key_generator
+	);
+	
+	Gerador_Key	: geradorKey
+	port map
+	(
+		key_input		=>	input_Key_generator,
+		key_out			=> generatedKey,
+		clk				=> general_clk,
+		reset	  			=> general_reset,
+		enable			=> en_key,
+		counter			=> general_counter
+	);
+	Add_initial	: AddRoundKey
+	generic map
+	(
+		DATA_WIDTH => COLUMN_DATA_WIDTH
+	)
+	port map
+	(
+		col_0_add	=> input_state(127 downto 96),
+		col_1_add	=> input_state(95 downto 64),
+		col_2_add	=> input_state(63 downto 32),
+		col_3_add	=> input_state(31 downto 0),
+		key			=> general_key,
+		output		=> output_add_initial
+	);
 	Regs_input	: Regs_8b
 	generic map
 	(
@@ -260,22 +334,22 @@ architecture rtl of PO is
 		reset		=> general_reset,
 		sel 		=> sel_1,
 		
-		input_0	=> input_state(127 downto 120),
-		input_1	=> input_state(119 downto 112),
-		input_2	=> input_state(111 downto 104),
-		input_3	=> input_state(103 downto 96),
-		input_4	=> input_state(95 downto 88),
-		input_5	=> input_state(87 downto 80),
-		input_6	=> input_state(79 downto 72),
-		input_7	=> input_state(71 downto 64),
-		input_8	=> input_state(63 downto 56),
-		input_9	=> input_state(55 downto 48),
-		input_10	=> input_state(47 downto 40),
-		input_11	=> input_state(39 downto 32),
-		input_12	=> input_state(31 downto 24),
-		input_13	=> input_state(23 downto 16),
-		input_14	=> input_state(15 downto 8),
-		input_15	=> input_state(7 downto 0),
+		input_0	=> output_add_initial(127 downto 120),
+		input_1	=> output_add_initial(119 downto 112),
+		input_2	=> output_add_initial(111 downto 104),
+		input_3	=> output_add_initial(103 downto 96),
+		input_4	=> output_add_initial(95 downto 88),
+		input_5	=> output_add_initial(87 downto 80),
+		input_6	=> output_add_initial(79 downto 72),
+		input_7	=> output_add_initial(71 downto 64),
+		input_8	=> output_add_initial(63 downto 56),
+		input_9	=> output_add_initial(55 downto 48),
+		input_10	=> output_add_initial(47 downto 40),
+		input_11	=> output_add_initial(39 downto 32),
+		input_12	=> output_add_initial(31 downto 24),
+		input_13	=> output_add_initial(23 downto 16),
+		input_14	=> output_add_initial(15 downto 8),
+		input_15	=> output_add_initial(7 downto 0),
 		
 		input_0_add  => general_state(127 downto 120),
 		input_1_add  => general_state(119 downto 112),
@@ -294,22 +368,22 @@ architecture rtl of PO is
 		input_14_add  => general_state(15 downto 8),
 		input_15_add  => general_state(7 downto 0),
 		
-		input_0_sbox  => general_sbox_input0,
-		input_1_sbox  => general_sbox_input1,
-		input_2_sbox  => general_sbox_input2,
-		input_3_sbox  => general_sbox_input3,
-		input_4_sbox  => general_sbox_input4,
-		input_5_sbox  => general_sbox_input5,
-		input_6_sbox  => general_sbox_input6,
-		input_7_sbox  => general_sbox_input7,
-		input_8_sbox  => general_sbox_input8,
-		input_9_sbox  => general_sbox_input9,
-		input_10_sbox  => general_sbox_input10,
-		input_11_sbox  => general_sbox_input11,
-		input_12_sbox  => general_sbox_input12,
-		input_13_sbox  => general_sbox_input13,
-		input_14_sbox  => general_sbox_input14,
-		input_15_sbox  => general_sbox_input15,
+		input_0_sbox  => general_sbox_output0,
+		input_1_sbox  => general_sbox_output1,
+		input_2_sbox  => general_sbox_output2,
+		input_3_sbox  => general_sbox_output3,
+		input_4_sbox  => general_sbox_output4,
+		input_5_sbox  => general_sbox_output5,
+		input_6_sbox  => general_sbox_output6,
+		input_7_sbox  => general_sbox_output7,
+		input_8_sbox  => general_sbox_output8,
+		input_9_sbox  => general_sbox_output9,
+		input_10_sbox  => general_sbox_output10,
+		input_11_sbox  => general_sbox_output11,
+		input_12_sbox  => general_sbox_output12,
+		input_13_sbox  => general_sbox_output13,
+		input_14_sbox  => general_sbox_output14,
+		input_15_sbox  => general_sbox_output15,
 		
 		output_reg_0  => general_reg_output0,
 		output_reg_1  => general_reg_output1,
@@ -350,22 +424,22 @@ architecture rtl of PO is
 			state14    => general_reg_output14,
 			state15    => general_reg_output15,
 			
-			rlps_0    => general_sbox_input0,
-			rlps_1    => general_sbox_input1,
-			rlps_2    => general_sbox_input2,
-			rlps_3    => general_sbox_input3,
-			rlps_4    => general_sbox_input4,
-			rlps_5    => general_sbox_input5,
-			rlps_6    => general_sbox_input6,
-			rlps_7    => general_sbox_input7,
-			rlps_8    => general_sbox_input8,
-			rlps_9    => general_sbox_input9,
-			rlps_10    => general_sbox_input10,
-			rlps_11    => general_sbox_input11,
-			rlps_12    => general_sbox_input12,
-			rlps_13    => general_sbox_input13,
-			rlps_14    => general_sbox_input14,
-			rlps_15    => general_sbox_input15
+			rlps_0    => general_sbox_output0,
+			rlps_1    => general_sbox_output1,
+			rlps_2    => general_sbox_output2,
+			rlps_3    => general_sbox_output3,
+			rlps_4    => general_sbox_output4,
+			rlps_5    => general_sbox_output5,
+			rlps_6    => general_sbox_output6,
+			rlps_7    => general_sbox_output7,
+			rlps_8    => general_sbox_output8,
+			rlps_9    => general_sbox_output9,
+			rlps_10    => general_sbox_output10,
+			rlps_11    => general_sbox_output11,
+			rlps_12    => general_sbox_output12,
+			rlps_13    => general_sbox_output13,
+			rlps_14    => general_sbox_output14,
+			rlps_15    => general_sbox_output15
 	);
 
 
@@ -443,7 +517,7 @@ architecture rtl of PO is
 		col_1_add	=> input_add_1,
 		col_2_add	=> input_add_2,
 		col_3_add	=> input_add_3,
-		key			=> general_key,
+		key			=> generatedKey,
 		output		=> general_state
 	);
 	

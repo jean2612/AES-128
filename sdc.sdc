@@ -1,4 +1,4 @@
-create_clock -period 5.000 -name osc_clk clk
+create_clock -period 10.000 -name osc_clk clk
 set_input_delay -clock osc_clk 0.1 [all_inputs]
 set_output_delay -clock osc_clk 0.1 [all_outputs]
 derive_pll_clocks
