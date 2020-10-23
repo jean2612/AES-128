@@ -25,7 +25,6 @@ component MixColumn is
 end component;
 
 begin
-
 	Col0: MixColumn
 	port map
 	(
